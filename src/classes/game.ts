@@ -30,8 +30,8 @@ export default class Game implements GameInterface {
     events: GameEvent[] = [];
     pivots: PivotPointInterface[] = [];
     good: GoodPointInterface;
-    snakes: { [key: string]: SnakeInterface };
-    goods: { [key: string]: GoodPointInterface };
+    snakes: { [key: string]: SnakeInterface } = {};
+    goods: { [key: string]: GoodPointInterface } = {};
 
     private _state: number;
 
@@ -142,6 +142,7 @@ export default class Game implements GameInterface {
     }
 
     toJSON(): GameItem {
+        console.log('toJSON' ,this);
         return {
             name: this.name,
             slots: this.slots,
