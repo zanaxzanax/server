@@ -1,0 +1,38 @@
+{
+    "name": "snakeserver",
+    "version": "0.0.1",
+    "main": "index.js",
+    "author": "Krivonogov Viktor",
+    "license": "MIT",
+    "scripts": {
+        "dev": "npm run clean && npm run copy-templates && npm run copy-config && tsc -w",
+        "clean": "cleandir ./dist",
+        "copy-templates": "cpx \"src/routes/pages/**/*.*\" \"dist/routes/pages\"",
+        "copy-config": "cpx \"src/config.json\" \"dist\""
+    },
+    "dependencies": {
+        "body-parser": "1.18.2",
+        "cookie-parser": "1.4.3",
+        "ejs": "2.5.7",
+        "express": "4.16.2",
+        "express-formidable": "1.0.0",
+        "jsonwebtoken": "8.1.0",
+        "lodash": "4.17.4",
+        "socket.io": "2.0.4",
+        "uuid": "3.1.0"
+    },
+    "devDependencies": {
+        "@types/lodash": "4.14.85",
+        "@types/node": "8.0.53",
+        "@types/body-parser": "^1.16.8",
+        "@types/cookie-parser": "^1.4.1",
+        "@types/jsonwebtoken": "^7.2.4",
+        "@types/socket.io": "^1.4.31",
+        "@types/uuid": "3.4.3",
+        "cpx": "^1.5.0",
+        "tslint": "5.1.0",
+        "clean-dir": "1.0.3",
+        "typescript": "2.3"
+    },
+    "description": ""
+}

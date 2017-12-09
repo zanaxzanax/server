@@ -1,0 +1,24 @@
+<html>
+<head lang="en">
+    <% include parts/head %>
+    <title><%= title %></title>
+</head>
+<body>
+
+<% include parts/connect %>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1><%= clientName %></h1>
+        </div>
+    </div>
+    <div id="app" class="row">
+        <div class="col">
+            <canvas id="field"></canvas>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/<%= name %>.js"></script>
+</body>
+</html>

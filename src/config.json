@@ -1,0 +1,6 @@
+{
+    "jwtSecret": "secret",
+    "clientName": "Snake",
+    "fieldResolutionX": 100,
+    "fieldResolutionY": 100
+}
