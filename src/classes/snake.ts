@@ -74,7 +74,7 @@ export default class Snake implements SnakeInterface {
 
         const pivots: PivotPointInterface[] = this.game.pivots[this.game.getPlayerUUIDBySnake(this)];
         const good: GoodPointInterface = this.game.goods[this.game.getPlayerUUIDBySnake(this)];
-        let direction/*: PivotPointType = this.headPoint.direction*/;
+        let direction;
 
         this.points.forEach((point: BodyPointInterface, i: number, array: BodyPointInterface[]) => {
 
@@ -129,7 +129,6 @@ export default class Snake implements SnakeInterface {
 
         if (good.isEaten()) {
             this.grow();
-            console.log('grow:', this.points.length);
         }
     }
 

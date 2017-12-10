@@ -175,9 +175,7 @@ export default class Game implements GameInterface {
     }
 
     softStop(): void {
-        if (this.isInPlay()) {
-            this._state = GameState.CREATED;
-        }
+        this._state = GameState.CREATED;
         this.endTime = Date.now();
         this._stopMovement();
     }
@@ -214,8 +212,8 @@ export default class Game implements GameInterface {
     checkLosers(): void {
         const uuidArray: string[] = Object.keys(this.snakes).filter((playerUUID: string) => {
             const snake: SnakeInterface = this.snakes[playerUUID];
-            return (this.rule === GameRule.SIMPLE && snake.headPoint.x > this.fieldResolutionX ||
-                snake.headPoint.y > this.fieldResolutionY ||
+            return (this.rule === GameRule.SIMPLE && snake.headPoint.x > this.maxX ||
+                snake.headPoint.y > this.maxY ||
                 snake.headPoint.y < 0 || snake.headPoint.x < 0) ||
                 snake.isSelfHit();
         });

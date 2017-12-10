@@ -47,9 +47,11 @@ class App implements AppInterface {
         const games: GameInterface[] = this.games.filter((game: GameInterface) =>
             game.slots.find((player: PlayerInterface) => player.uuid === user.uuid));
         games.forEach((game: GameInterface) => {
-            game.slots = game.slots.filter((player: PlayerInterface) => player.uuid !== user.uuid);
+            if (!game.isDone()) {
+                game.slots = game.slots.filter((player: PlayerInterface) => player.uuid !== user.uuid);
+                game.softStop();
+            }
             user.socket.leave(game.uuid);
-            game.softStop();
         });
         if (games.length) {
             this.io.emit('games:update', games);

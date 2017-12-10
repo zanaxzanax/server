@@ -57,6 +57,7 @@ export interface GameInterface {
     goods: { [key: string]: GoodPointInterface };
     isFull: () => boolean;
     isInPlay: () => boolean;
+    isDone: () => boolean;
     join: (user: PlayerItem) => boolean;
     allReady: () => boolean;
     ready: (user: PlayerItem) => void;
