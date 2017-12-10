@@ -3,6 +3,7 @@ import errors from './../errors';
 import middlewares from './middlewares';
 import * as formidable from 'express-formidable';
 import * as _ from 'lodash';
+import {GameInterface} from '../types';
 
 const success = {
     ok: true
@@ -11,8 +12,12 @@ const success = {
 export default {
     init: (exp) => {
 
-        exp.get('/api/game/:uuid', middlewares.auth, (req, res) => {
-            res.json(app.getGame(req.params.uuid));
+        exp.get('/api/game/:uuid', middlewares.auth, (req, res, next) => {
+            const game: GameInterface = app.getGame(req.params.uuid);
+            if (game) {
+                return res.json(game);
+            }
+            return next(new errors.RouteError());
         });
 
         exp.get('/api/game', middlewares.auth, (req, res) => {
@@ -23,22 +28,17 @@ export default {
             res.json(req.user);
         });
 
-        exp.post('/api/game', middlewares.auth, formidable(), (req, res, next) => {
-            const game = app.addGame
-            (_.extend({}, req.fields, {user: req.user}));
-            if (game) {
-                res.redirect(`/game/${game.uuid}`);
-            } else {
-                return next(new errors.BadError());
-            }
+        exp.post('/api/game', middlewares.auth, formidable(), (req, res) => {
+            console.log(req.fields);
+            const game = app.addGame(_.extend({}, req.fields, {user: req.user}));
+            res.redirect(`/game/${game.uuid}`);
         });
 
         exp.delete('/api/game/:uuid', middlewares.auth, (req, res, next) => {
             if (app.removeGame(req.params.uuid, req.user)) {
                 return res.json(success);
-            } else {
-                return next(new errors.BadError());
             }
+            return next(new errors.BadError());
         });
     }
 };

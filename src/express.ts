@@ -48,30 +48,35 @@ const isXMLHttpRequest = (req) => {
 };
 
 exp.use((err, req, res, next) => {
-    // console.error(err);
+
+    console.error(err);
+    console.error(typeof err);
 
     const isXML = isXMLHttpRequest(req);
 
-    if (!isXML) {
-        if (err instanceof errors.AuthError) {
-            return res.redirect('/');
-        } else if (err instanceof errors.RouteError) {
-            return res.render('error', {
-                status: err.status,
-                title: `Ошибка - ${config.clientName}`,
-                clientName: config.clientName,
-                name: 'error'
-            });
+    if (isXML) {
+        res.status(err.status || 500);
+        return res.json({
+            errors: {
+                message: err.message,
+                error: {}
+            }
+        });
+    } else {
+
+
+        switch (err.status) {
+            case 403:
+                return res.redirect('/');
+            default:
+                return res.render('error', {
+                    status: err.status,
+                    title: `Ошибка - ${config.clientName}`,
+                    clientName: config.clientName,
+                    name: 'error'
+                });
         }
     }
-
-    res.status(err.status || 500);
-    res.json({
-        errors: {
-            message: err.message,
-            error: {}
-        }
-    });
 });
 
 export default {

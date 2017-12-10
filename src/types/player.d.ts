@@ -1,7 +1,13 @@
+import Socket = SocketIO.Socket;
+
 export interface PlayerItem {
     name: string;
     uuid: string;
     state: number;
+}
+
+export interface UserItem extends PlayerItem {
+    socket: Socket;
 }
 
 export interface PlayerOptions {
@@ -14,5 +20,8 @@ export interface PlayerInterface {
     uuid: string;
     state: number;
     isReady: () => boolean;
+    setState: (value: number) => void;
     toJSON: () => PlayerItem;
+    isLoser: () => boolean;
+    isWinner: () => boolean;
 }

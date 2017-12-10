@@ -4,8 +4,15 @@ import {PivotPointType} from '../enums';
 
 export class PivotPoint extends Point implements PivotPointInterface {
 
-    constructor(public game: GameInterface, public x, public y, public direction: number) {
-        super(x, y);
+    x: number;
+    y: number;
+    direction: number;
+
+    constructor(public game: GameInterface, options: PointItem) {
+        super(options.x, options.y);
+        this.x = options.x;
+        this.y = options.y;
+        this.direction = options.direction;
     }
 
     isUp(): boolean {

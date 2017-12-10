@@ -1,10 +1,10 @@
 import Game from './game';
-import {AppInterface, GameInterface, PlayerInterface} from '../types';
+import {AppInterface, GameInterface, PlayerInterface, PlayerItem, UserItem} from '../types';
 
 class App implements AppInterface {
 
     games: GameInterface[] = [];
-    users: PlayerInterface[] = [];
+    users: UserItem[] = [];
     io: any;
 
     start(io: any): AppInterface {
@@ -13,14 +13,14 @@ class App implements AppInterface {
     }
 
     getGames(): GameInterface[] {
-        return this.games;
+        return this.games || [];
     }
 
     getGame(uuid: string): GameInterface {
         return this.games.find((game: GameInterface) => game.uuid === uuid) || null;
     }
 
-    joinGame(uuid: string, user: PlayerInterface): boolean {
+    joinGame(uuid: string, user: PlayerItem): boolean {
         const founded: GameInterface = this.getGame(uuid);
         if (founded && founded.join(user)) {
             this.io.emit('games:update', [founded]);
@@ -29,25 +29,27 @@ class App implements AppInterface {
         return false;
     }
 
-    readyGame(uuid: string, user: PlayerInterface): void {
+    readyGame(uuid: string, user: PlayerItem): void {
         const founded: GameInterface = this.getGame(uuid);
         if (founded) {
             founded.ready(user);
         }
     }
 
-    pivotGame(data: any, user: PlayerInterface): void {
+    pivotGame(data: any, user: PlayerItem): void {
         const founded: GameInterface = this.getGame(data.uuid);
         if (founded) {
             founded.pivot(data, user);
         }
     }
 
-    leaveGamesByPlayerUUID(uuid: string): void {
+    leaveGamesByUser(user: UserItem): void {
         const games: GameInterface[] = this.games.filter((game: GameInterface) =>
-            game.slots.find((player: PlayerInterface) => player.uuid === uuid));
+            game.slots.find((player: PlayerInterface) => player.uuid === user.uuid));
         games.forEach((game: GameInterface) => {
-            game.slots = game.slots.filter((player: PlayerInterface) => player.uuid !== uuid);
+            game.slots = game.slots.filter((player: PlayerInterface) => player.uuid !== user.uuid);
+            user.socket.leave(game.uuid);
+            game.softStop();
         });
         if (games.length) {
             this.io.emit('games:update', games);
@@ -55,17 +57,16 @@ class App implements AppInterface {
     }
 
     addGame(options: any): GameInterface {
-        // TODO validate & return bool
         const game: GameInterface = new Game(this, options);
         this.games.push(game);
         this.io.emit('games:add', game);
         return game;
     }
 
-    removeGame(uuid: string, user: PlayerInterface): boolean {
+    removeGame(uuid: string, user: PlayerItem): boolean {
         const founded: GameInterface = this.getGame(uuid);
         if (founded && founded.creator.uuid === user.uuid) {
-            founded.selfDestroy();
+            founded.stop();
             this.games.splice(this.games.indexOf(founded), 1);
             this.io.emit('games:remove', [founded.uuid]);
             return true;
@@ -74,8 +75,8 @@ class App implements AppInterface {
         }
     }
 
-    getUserByName(name: string): PlayerInterface {
-        return this.users.find((user: PlayerInterface) => user.name === name);
+    getUserByName(name: string): UserItem {
+        return this.users.find((user: UserItem) => user.name === name);
     }
 }
 

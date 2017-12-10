@@ -16,15 +16,27 @@ export default class Player implements PlayerInterface {
 
     set state(value: number) {
         this._state = value;
-        this.game.app.io.to(this.uuid).emit('games:update', this.game);
+        this.game.sendUpdateMessage();
     }
 
     get state(): number {
         return this._state;
     }
 
+    setState(value: number): void {
+        this._state = value;
+    }
+
     isReady(): boolean {
         return this.state === PlayerState.READY;
+    }
+
+    isLoser(): boolean {
+        return this.state === PlayerState.LOSER;
+    }
+
+    isWinner(): boolean {
+        return this.state === PlayerState.WINNER;
     }
 
     toJSON(): PlayerItem {

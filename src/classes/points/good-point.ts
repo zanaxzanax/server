@@ -1,12 +1,16 @@
 import Point from './point';
-import {GameInterface, GoodPointInterface, PointItem} from '../../types';
+import {GameInterface, GoodOptions, GoodPointInterface, PointItem} from '../../types';
 
 export default class GoodPoint extends Point implements GoodPointInterface {
 
     eaten: boolean = false;
+    playerUUID: string;
 
-    constructor(public game: GameInterface, public x: number, public y: number) {
-        super(x, y);
+    constructor(public game: GameInterface, options: GoodOptions) {
+        super(options.x, options.y);
+        this.x = options.x;
+        this.y = options.y;
+        this.playerUUID = options.playerUUID;
     }
 
     isEaten(): boolean {

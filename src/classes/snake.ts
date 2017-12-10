@@ -2,50 +2,42 @@ import {
     BodyPointInterface,
     GameInterface,
     GoodPointInterface,
-    HeadPointInterface,
     PivotPointInterface,
     PointInterface,
+    PointItem,
     SnakeInterface,
-    SnakeItem,
-    SnakeOptions
+    SnakeItem
 } from '../types';
-import HeadPoint from './points/head-point';
 import BodyPoint from './points/body-point';
-import * as _ from 'lodash';
-import {PivotPointType} from './enums';
+import {GameRule, PivotPointType} from './enums';
 
 export default class Snake implements SnakeInterface {
 
-    static defaults: SnakeOptions = {
-        length: 1,
-        startX: 0,
-        startY: 0,
-        direction: PivotPointType.RIGHT,
-    };
+    /* static defaults: SnakeOptions = {
+         playerUUID: '',
+         length: 1,
+         startX: 0,
+         startY: 0,
+         direction: PivotPointType.RIGHT,
+     };
+ */
+//    options: SnakeOptions;
+    points: BodyPointInterface[] = [];
 
-    options: SnakeOptions;
-    head: HeadPointInterface[] = [];
-    body: BodyPointInterface[] = [];
-
-    constructor(public game: GameInterface, options: SnakeOptions) {
-        this.options = _.extend({}, Snake.defaults, options);
-        this.head = [new HeadPoint(this, {
-            x: this.options.startX,
-            y: this.options.startY,
-            direction: this.options.direction
-        })];
+    constructor(public game: GameInterface, points: PointItem[]) {
+        this.points = points.map((point: PointItem) => new BodyPoint(this.game, point));
     }
 
-    get headPoint(): HeadPointInterface {
-        return this.head[0];
+    get headPoint(): BodyPointInterface {
+        return this.points[0];
     }
 
     get lastPoint(): BodyPointInterface {
         return this.points[this.points.length - 1];
     }
 
-    get points(): BodyPointInterface[] {
-        return [...this.head, ...this.body];
+    length(): number {
+        return this.points.length;
     }
 
     isSelfHit(): boolean {
@@ -75,20 +67,23 @@ export default class Snake implements SnakeInterface {
                 break;
         }
 
-        this.body.push(new BodyPoint(this, x, y, this.lastPoint.direction));
+        this.points.push(new BodyPoint(this.game, {x, y, direction: this.lastPoint.direction}));
     }
 
     move(): void {
 
-        const pivots: PivotPointInterface[] = this.game.pivots;
-        const good: GoodPointInterface = this.game.good;
+        const pivots: PivotPointInterface[] = this.game.pivots[this.game.getPlayerUUIDBySnake(this)];
+        const good: GoodPointInterface = this.game.goods[this.game.getPlayerUUIDBySnake(this)];
         let direction/*: PivotPointType = this.headPoint.direction*/;
 
         this.points.forEach((point: BodyPointInterface, i: number, array: BodyPointInterface[]) => {
 
-            const pivot: PivotPointInterface = pivots.find((pivotPoint: PivotPointInterface) => {
-                return pivotPoint.x === point.x && pivotPoint.y === point.y
-            });
+            let pivot: PivotPointInterface;
+
+            if (pivots) {
+                pivot = pivots.find((pivotPoint: PivotPointInterface) =>
+                    pivotPoint.x === point.x && pivotPoint.y === point.y);
+            }
 
             direction = pivot ? pivot.direction : point.direction;
             point.direction = direction;
@@ -110,14 +105,26 @@ export default class Snake implements SnakeInterface {
                     break;
             }
 
-            if (point instanceof HeadPoint) {
-                if (point.x === good.x && point.y === good.y) {
-                    good.eat();
-                    //  this.grow();
-                    // array.push(this.lastPoint);
+            if (this.game.rule === GameRule.WALL_THROW) {
+                if (point.x > this.game.maxX) {
+                    point.x = 0;
+                }
+                if (point.x < 0) {
+                    point.x = this.game.maxX;
+                }
+                if (point.y > this.game.maxY) {
+                    point.y = 0;
+                }
+                if (point.y < 0) {
+                    point.y = this.game.maxY;
                 }
             }
 
+            if (this.points.indexOf(point) === 0) { // is head
+                if (point.x === good.x && point.y === good.y) {
+                    good.eat();
+                }
+            }
         });
 
         if (good.isEaten()) {

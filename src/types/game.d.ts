@@ -7,11 +7,22 @@ import {SnakeInterface} from './index';
 export interface GameItem {
     name: string;
     state: number;
+    playersLimit: number;
+    startTime: number;
+    endTime: number;
+    now: number;
     slots: PlayerItem[];
-    snakes: SnakeItem[];
-    goods: PointItem[];
+    snakes: { [key: string]: SnakeItem };
+    goods: { [key: string]: PointItem };
     creator: PlayerItem;
     uuid: string;
+}
+
+export interface GameOptions {
+    name: string;
+    speed: string;
+    rule: string;
+    user: PlayerItem;
 }
 
 export interface GameEvent {
@@ -20,12 +31,6 @@ export interface GameEvent {
     data: any;
     game?: string;
     player?: string;
-}
-
-export interface PivotPointEventData {
-    x: number;
-    y: number;
-    direction: number;
 }
 
 export interface GameStatistic {
@@ -37,28 +42,32 @@ export interface GameInterface {
     app: AppInterface;
     uuid: string;
     name: string;
+    speed: number;
+    rule: number;
     fieldResolutionX: number;
     fieldResolutionY: number;
+    maxX: number;
+    maxY: number;
     state: number;
     creator: PlayerInterface;
     playersLimit: number;
     slots: PlayerInterface[];
-    events: GameEvent[];
-    pivots: PivotPointInterface[];
-    good: GoodPointInterface;
+    pivots: { [key: string]: PivotPointInterface[] };
     snakes: { [key: string]: SnakeInterface };
     goods: { [key: string]: GoodPointInterface };
     isFull: () => boolean;
     isInPlay: () => boolean;
-    join: (user: PlayerInterface) => boolean;
+    join: (user: PlayerItem) => boolean;
     allReady: () => boolean;
-    ready: (user: PlayerInterface) => void;
-    addEvent: (otions: any) => void;
-    pivot: (data: PivotPointEventData, user: PlayerInterface) => void;
-    getPlayerByUUID: (uuid: string) => PlayerInterface;
-    selfDestroy: () => void;
+    ready: (user: PlayerItem) => void;
+    pivot: (data: PointItem, user: PlayerItem) => void;
+    getPlayerByUUID: (snake: string) => PlayerInterface;
+    softStop: () => void;
     stop: () => void;
     start: () => void;
     tick: () => void;
     toJSON: () => GameItem;
+    sendUpdateMessage: () => void;
+    getPlayerUUIDBySnake: (snake: SnakeInterface) => string;
+    hasLosers: () => boolean;
 }

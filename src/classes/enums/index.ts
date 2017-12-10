@@ -1,5 +1,5 @@
 export enum GameState {
-    CREATED, PLAY, WIN, LOSE, DELETED
+    CREATED, PLAY, DONE
 }
 
 export enum GameTypes {
@@ -14,8 +14,12 @@ export enum GameSide {
     LEFT, RIGHT
 }
 
+export enum GameRule {
+    WALL_THROW, SIMPLE
+}
+
 export enum PlayerState {
-    NOT_READY, READY
+    NOT_READY, READY, WINNER, LOSER
 }
 
 export enum PivotPointType {

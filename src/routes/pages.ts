@@ -80,7 +80,6 @@ export default {
         });
 
         exp.get('/game/:uuid', middlewares.auth, (req, res, next) => {
-
             if (app.getGame(req.params.uuid)) {
                 return res.render('multiplayer', {
                     title: `Игра - ${config.clientName}`,
