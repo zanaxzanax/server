@@ -9,7 +9,7 @@
         ],
         "module": "commonjs",
         "moduleResolution": "node",
-        "outDir": "./dist",
+        "outDir": "./../dist",
         "sourceMap": false,
         "allowJs": true,
         "target": "es5",

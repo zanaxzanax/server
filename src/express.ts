@@ -8,16 +8,18 @@ import * as path from 'path';
 
 const exp = express();
 
+const dirname = process.env.PWD || __dirname;
+
 exp.use(bodyParser.urlencoded({extended: false}));
 exp.use(bodyParser.json());
 exp.use(cookieParser());
 exp.set('view engine', 'ejs');
-exp.set('views', path.resolve(__dirname, './routes/pages'));
+exp.set('views', path.resolve(dirname, './routes/pages'));
 
 routes.api.init(exp);
 routes.pages.init(exp);
 
-exp.use(express.static(__dirname + './../dist/public'));
+exp.use(express.static(dirname + '/public'));
 
 exp.use((req, res, next) => {
     next(new errors.RouteError());
