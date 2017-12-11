@@ -37,7 +37,7 @@ export default {
                 case 'multiplayer':
                     return res.redirect('/list');
                 case 'single':
-                    return res.redirect('/game/single');
+                    return res.redirect('/game/create');
                 default:
                     return next(new errors.RouteError());
             }
@@ -70,12 +70,22 @@ export default {
             }
         });
 
-        exp.get('/game', middlewares.auth, (req, res, next) => {
+        exp.get('/game/create', middlewares.auth, (req, res, next) => {
+            return res.render('game', {
+                title: `Создание игры - ${config.clientName}`,
+                clientName: config.clientName,
+                name: 'single',
+                creation: true
+            });
+        });
+
+        exp.post('/game', middlewares.auth, (req, res, next) => {
             return res.render('game', {
                 title: `Игра - ${config.clientName}`,
                 clientName: config.clientName,
-                name: 'game',
-                uuid: req.params.uuid
+                name: 'single',
+                creation: false,
+                query: req.body
             });
         });
 
@@ -85,7 +95,6 @@ export default {
                     title: `Игра - ${config.clientName}`,
                     clientName: config.clientName,
                     name: 'multiplayer',
-                    uuid: req.params.uuid
                 });
             } else {
                 return next(new errors.RouteError());

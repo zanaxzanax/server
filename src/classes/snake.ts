@@ -76,14 +76,10 @@ export default class Snake implements SnakeInterface {
         const good: GoodPointInterface = this.game.goods[this.game.getPlayerUUIDBySnake(this)];
         let direction;
 
-        this.points.forEach((point: BodyPointInterface, i: number, array: BodyPointInterface[]) => {
+        this.points.forEach((point: BodyPointInterface) => {
 
-            let pivot: PivotPointInterface;
-
-            if (pivots) {
-                pivot = pivots.find((pivotPoint: PivotPointInterface) =>
-                    pivotPoint.x === point.x && pivotPoint.y === point.y);
-            }
+            const pivot: PivotPointInterface = pivots.find((pivotPoint: PivotPointInterface) =>
+                pivotPoint.x === point.x && pivotPoint.y === point.y);
 
             direction = pivot ? pivot.direction : point.direction;
             point.direction = direction;

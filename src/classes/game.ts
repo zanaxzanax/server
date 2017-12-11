@@ -198,6 +198,7 @@ export default class Game implements GameInterface {
                 y: Math.round(this.fieldResolutionY / 2),
                 direction: PivotPointType.RIGHT
             }]);
+            this.pivots[playerUUID] = [];
             this.goods[slot.uuid] = this.getGood(playerUUID);
         });
 
@@ -279,7 +280,7 @@ export default class Game implements GameInterface {
     private _startMovement() {
         this._interval = setInterval(() => {
             this.tick();
-        }, 1000 / this.speed);
+        }, (config.relativeSpeed || 1000) / this.speed);
     }
 
     private _stopMovement() {

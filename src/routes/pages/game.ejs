@@ -13,12 +13,32 @@
             <h1><%= clientName %></h1>
         </div>
     </div>
+
+    <% if (!creation) { %>
     <div id="app" class="row">
-        <div class="col">
-            <canvas class="img-thumbnail" id="field"></canvas>
+        <div class="col text-center">
+            <div class="hidden" id="rule">
+                <%= query.rule %>
+            </div>
+            <div class="hidden" id="speed">
+                <%= query.speed %>
+            </div>
+            <canvas id="field"></canvas>
         </div>
     </div>
+    <% } else { %>
+    <div class="row">
+        <div class="col">
+            <form action="/game" method="post" enctype="application/x-www-form-urlencoded">
+                <% include parts/create-game-form-inner %>
+            </form>
+        </div>
+    </div>
+    <% } %>
 </div>
-<script type="text/javascript" src="/<%= name %>.js"></script>
+
+<% if (!creation) { %>
+<script type="text/javascript" src="/<%= name %>.bundle.js"></script>
+<% } %>
 </body>
 </html>

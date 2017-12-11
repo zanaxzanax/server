@@ -10,8 +10,6 @@ Promise.resolve()
     .then((server) => socket.start(server))
     .then((io) => app.start(io))
     .then((app) => {
-        console.log('sta')
+        console.log('Initialized');
     })
-    .catch((err) => {
-        console.error(err);
-    });
+    .catch(console.error);

@@ -2,5 +2,9 @@
     "jwtSecret": "secret",
     "clientName": "Snake",
     "fieldResolutionX": 100,
-    "fieldResolutionY": 100
+    "fieldResolutionY": 100,
+    "canvasHeight": 500,
+    "canvasWidth": 500,
+    "canvasTopPadding": 10,
+    "relativeSpeed": 500
 }

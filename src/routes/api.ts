@@ -4,6 +4,8 @@ import middlewares from './middlewares';
 import * as formidable from 'express-formidable';
 import * as _ from 'lodash';
 import {GameInterface} from '../types';
+import config from './../config';
+import {ConfigItem} from '../types/config';
 
 const success = {
     ok: true
@@ -28,8 +30,13 @@ export default {
             res.json(req.user);
         });
 
+        exp.get('/api/config', middlewares.auth, (req, res) => {
+            const forSend: ConfigItem = _.extend({}, config);
+            delete forSend['jwtSecret'];
+            res.json(forSend);
+        });
+
         exp.post('/api/game', middlewares.auth, formidable(), (req, res) => {
-            console.log(req.fields);
             const game = app.addGame(_.extend({}, req.fields, {user: req.user}));
             res.redirect(`/game/${game.uuid}`);
         });
