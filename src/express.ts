@@ -9,6 +9,7 @@ import * as path from 'path';
 const exp = express();
 
 const dirname = process.env.PWD || __dirname;
+const port = process.env.PORT || `3000`;
 
 exp.use(bodyParser.urlencoded({extended: false}));
 exp.use(bodyParser.json());
@@ -58,7 +59,7 @@ exp.use((err, req, res, next) => {
 
 export default {
     start: () => new Promise((resolve, reject) => {
-        const server = exp.listen(process.env.PORT);
+        const server = exp.listen(port);
         server.on('error', reject);
         server.on('listening', () => {
             resolve(server);

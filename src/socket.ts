@@ -16,7 +16,6 @@ export default {
         io.on('connection', (socket: Socket) => {
 
             const token = socket.handshake.query.token;
-            console.log('a user connected', token);
 
             jwt.verify(token, 'secret', (err, decoded) => {
 
@@ -26,7 +25,7 @@ export default {
                     socket.disconnect(true);
                 } else {
 
-                    console.log(decoded); // bar
+                    // console.log(decoded);
 
                     user.socket = socket;
 
@@ -47,8 +46,6 @@ export default {
                     });
 
                     socket.on('disconnect', (reason) => {
-                        console.log('user disconnected ' + user.name, ' ', reason);
-
                         app.users.splice(app.users.indexOf(user), 1);
                         app.leaveGamesByUser(user);
                     });

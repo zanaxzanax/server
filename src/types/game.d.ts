@@ -7,6 +7,7 @@ import {SnakeInterface} from './index';
 export interface GameItem {
     name: string;
     state: number;
+    speed: number;
     playersLimit: number;
     startTime: number;
     endTime: number;
@@ -39,6 +40,9 @@ export interface GameInterface {
     name: string;
     speed: number;
     rule: number;
+    startTime: number;
+    now: number;
+    endTime: number;
     fieldResolutionX: number;
     fieldResolutionY: number;
     maxX: number;
@@ -54,16 +58,11 @@ export interface GameInterface {
     isFull: () => boolean;
     isInPlay: () => boolean;
     isDone: () => boolean;
-    allReady: () => boolean;
-    hasLosers: () => boolean;
     join: (user: PlayerItem) => boolean;
     ready: (user: PlayerItem) => void;
     pivot: (data: PointItem, user: PlayerItem) => void;
-    getPlayerByUUID: (uuid: string) => PlayerInterface;
     softStop: () => void;
     stop: () => void;
-    start: () => void;
-    tick: () => void;
     sendUpdateMessage: () => void;
     toJSON: () => GameItem;
 }

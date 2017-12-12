@@ -23,7 +23,7 @@ import * as _ from 'lodash';
 
 export default class Game implements GameInterface {
 
-    static gameDuration: number = 60;
+    static gameDuration: number = config.gameDuration || 60;
 
     fieldResolutionX: number = config.fieldResolutionX;
     fieldResolutionY: number = config.fieldResolutionY;
@@ -92,7 +92,7 @@ export default class Game implements GameInterface {
     }
 
     join(user: PlayerItem): boolean {
-        if (!this.isFull() && this.isCreated() && !this.getPlayerByUUID(user.uuid)) {
+        if (!this.isFull() && this.isCreated() && !this._getPlayerByUUID(user.uuid)) {
             this.slots.push(new Player(this, user));
             return true;
         } else {
@@ -100,22 +100,18 @@ export default class Game implements GameInterface {
         }
     }
 
-    allReady(): boolean {
-        return this.isFull() && this.slots.every((player) => player.state === 1);
-    }
-
     ready(user: PlayerItem): void {
-        const player = this.getPlayerByUUID(user.uuid);
+        const player = this._getPlayerByUUID(user.uuid);
         if (player) {
             player.state = PlayerState.READY; // READY;
-            if (this.allReady()) {
-                this.start();
+            if (this._allReady()) {
+                this._start();
             }
         }
     }
 
     pivot(data: PointItem, user: PlayerItem): void {
-        if (this.getPlayerByUUID(user.uuid) && this.isInPlay()) {
+        if (this._getPlayerByUUID(user.uuid) && this.isInPlay()) {
             this.pivots[user.uuid] = this.pivots[user.uuid] || [];
             this.pivots[user.uuid].push(new PivotPoint(this, {
                 x: this.snakes[user.uuid].headPoint.x,
@@ -123,39 +119,6 @@ export default class Game implements GameInterface {
                 direction: data.direction
             }));
         }
-    }
-
-    getPlayerByUUID(uuid: string): PlayerInterface {
-        return this.slots.find((player: PlayerInterface) => player.uuid === uuid);
-    }
-
-    checkGoods(): void {
-        Object.keys(this.goods).forEach((playerUUID: string) => {
-            const good: GoodPointInterface = this.goods[playerUUID];
-            if (!good || good.isEaten()) {
-                this.goods[playerUUID] = this._createGood();
-            }
-        });
-    }
-
-
-    cleanPivots(): void {
-        Object.keys(this.pivots).forEach((playerUUID: string) => {
-            const pivots: PointItem[] = this.pivots[playerUUID].slice();
-            const snakePoints: BodyPointInterface[] = this.snakes[playerUUID].points;
-            this.pivots[playerUUID].length = 0;
-            pivots.forEach((pivot: PivotPoint) => {
-                if (snakePoints.find((point: BodyPointInterface) => point.x === pivot.x && point.y === pivot.y)) {
-                    this.pivots[playerUUID].push(pivot);
-                }
-            });
-        });
-    }
-
-    moveSnakes(): void {
-        Object.keys(this.snakes).forEach((playerUUID: string) => {
-            this.snakes[playerUUID].move(this.pivots[playerUUID], this.goods[playerUUID]);
-        });
     }
 
     softStop(): void {
@@ -169,7 +132,60 @@ export default class Game implements GameInterface {
         this._state = GameState.DONE;
     }
 
-    start(): void {
+    toJSON(): GameItem {
+        return {
+            name: this.name,
+            playersLimit: this.playersLimit,
+            speed: this.speed,
+            slots: this.slots,
+            startTime: this.startTime,
+            now: this.now,
+            endTime: this.endTime,
+            state: this.state,
+            goods: this.goods,
+            creator: this.creator,
+            snakes: this.snakes,
+            uuid: this.uuid
+        }
+    }
+
+    private _allReady(): boolean {
+        return this.isFull() && this.slots.every((player) => player.state === 1);
+    }
+
+    private _getPlayerByUUID(uuid: string): PlayerInterface {
+        return this.slots.find((player: PlayerInterface) => player.uuid === uuid);
+    }
+
+    private _checkGoods(): void {
+        Object.keys(this.goods).forEach((playerUUID: string) => {
+            const good: GoodPointInterface = this.goods[playerUUID];
+            if (!good || good.isEaten()) {
+                this.goods[playerUUID] = this._createGood();
+            }
+        });
+    }
+
+    private _cleanPivots(): void {
+        Object.keys(this.pivots).forEach((playerUUID: string) => {
+            const pivots: PointItem[] = this.pivots[playerUUID].slice();
+            const snakePoints: BodyPointInterface[] = this.snakes[playerUUID].points;
+            this.pivots[playerUUID].length = 0;
+            pivots.forEach((pivot: PivotPoint) => {
+                if (snakePoints.find((point: BodyPointInterface) => point.x === pivot.x && point.y === pivot.y)) {
+                    this.pivots[playerUUID].push(pivot);
+                }
+            });
+        });
+    }
+
+    private _moveSnakes(): void {
+        Object.keys(this.snakes).forEach((playerUUID: string) => {
+            this.snakes[playerUUID].move(this.pivots[playerUUID], this.goods[playerUUID]);
+        });
+    }
+
+    private _start(): void {
 
         this.startTime = Date.now();
         this.endTime = Date.now();
@@ -190,11 +206,11 @@ export default class Game implements GameInterface {
         this._startMovement();
     }
 
-    isGameOld(secCount: number): boolean {
+    private _isGameOld(secCount: number): boolean {
         return this.isInPlay() && moment.utc(this.now).diff(moment.utc(this.startTime), 'seconds') >= secCount;
     }
 
-    checkLosers(): void {
+    private _checkLosers(): void {
         const uuidArray: string[] = Object.keys(this.snakes).filter((playerUUID: string) => {
             const snake: SnakeInterface = this.snakes[playerUUID];
             return (this.rule === GameRule.SIMPLE && snake.headPoint.x > this.maxX ||
@@ -203,15 +219,15 @@ export default class Game implements GameInterface {
                 snake.isSelfHit();
         });
         uuidArray.forEach((uuid: string) => {
-            this.getPlayerByUUID(uuid).setState(PlayerState.LOSER);
+            this._getPlayerByUUID(uuid).setState(PlayerState.LOSER);
         });
     }
 
-    hasLosers(): boolean {
+    private _hasLosers(): boolean {
         return !!this.slots.find((player: PlayerInterface) => player.isLoser());
     }
 
-    checkWinners(): void {
+    private _checkWinners(): void {
         let lenArray: any[] = Object.keys(this.snakes).map((playerUUID: string) => ({
             playerUUID,
             len: this.snakes[playerUUID].length()
@@ -219,46 +235,30 @@ export default class Game implements GameInterface {
         const max: number = _.maxBy(lenArray, (item) => item.len);
         lenArray = lenArray.filter((num) => num === max);
         lenArray.forEach((item) => {
-            this.getPlayerByUUID(item.playerUUID).setState(PlayerState.WINNER);
+            this._getPlayerByUUID(item.playerUUID).setState(PlayerState.WINNER);
         });
     }
 
-    tick(): void {
+    private _tick(): void {
 
         this.now = Date.now();
 
-        this.checkGoods();
-        this.moveSnakes();
-        this.cleanPivots();
+        this._checkGoods();
+        this._moveSnakes();
+        this._cleanPivots();
 
-        this.checkLosers();
+        this._checkLosers();
 
-        if (this.hasLosers()) {
+        if (this._hasLosers()) {
             this.stop();
         } else {
-            if (this.isGameOld(Game.gameDuration)) {
-                this.checkWinners();
+            if (this._isGameOld(Game.gameDuration)) {
+                this._checkWinners();
                 this.stop();
             }
         }
 
         this.sendUpdateMessage();
-    }
-
-    toJSON(): GameItem {
-        return {
-            name: this.name,
-            playersLimit: this.playersLimit,
-            slots: this.slots,
-            startTime: this.startTime,
-            now: this.now,
-            endTime: this.endTime,
-            state: this.state,
-            goods: this.goods,
-            creator: this.creator,
-            snakes: this.snakes,
-            uuid: this.uuid
-        }
     }
 
     private _randomInteger(min, max): number {
@@ -277,7 +277,7 @@ export default class Game implements GameInterface {
 
     private _startMovement() {
         this._interval = setInterval(() => {
-            this.tick();
+            this._tick();
         }, (config.relativeSpeed || 1000) / this.speed);
     }
 

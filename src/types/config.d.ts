@@ -7,4 +7,5 @@ export interface ConfigItem {
     canvasHeight: number;
     canvasWidth: number;
     canvasTopPadding: number;
+    gameDuration: number;
 }

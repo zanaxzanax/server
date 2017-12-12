@@ -1,16 +1,17 @@
 import Game from './game';
 import {AppInterface, GameInterface, GameSingleItem, PlayerInterface, PlayerItem, UserItem} from '../types';
-import {GameTypes} from './enums';
+import {GameTypes, PlayerState} from './enums';
 import uuid = require('uuid');
+import Socket = SocketIO.Socket;
 
 class App implements AppInterface {
 
     games: GameInterface[] = [];
     singles: GameSingleItem[] = [];
     users: UserItem[] = [];
-    io: any;
+    io: Socket;
 
-    start(io: any): AppInterface {
+    start(io: Socket): AppInterface {
         this.io = io;
         return this;
     }
@@ -49,12 +50,13 @@ class App implements AppInterface {
 
     leaveGamesByUser(user: UserItem): void {
         const games: GameInterface[] = this.games.filter((game: GameInterface) =>
-            game.slots.find((player: PlayerInterface) => player.uuid === user.uuid));
+            !game.isDone() && game.slots.find((player: PlayerInterface) => player.uuid === user.uuid));
         games.forEach((game: GameInterface) => {
-            if (!game.isDone()) {
-                game.slots = game.slots.filter((player: PlayerInterface) => player.uuid !== user.uuid);
-                game.softStop();
-            }
+            game.slots = game.slots.filter((player: PlayerInterface) => player.uuid !== user.uuid);
+            game.slots.forEach((player: PlayerInterface) => {
+                player.setState(PlayerState.NOT_READY);
+            });
+            game.softStop();
         });
         if (games.length) {
             this.io.emit('games:update', games);
@@ -65,8 +67,8 @@ class App implements AppInterface {
         if (options.type === GameTypes[GameTypes.SINGLE]) {
             const game: GameSingleItem = {
                 name: options.name,
-                rule: options.rule,
-                speed: options.speed,
+                rule: parseInt(options.rule, 10),
+                speed: parseInt(options.speed, 10),
                 type: GameTypes.SINGLE,
                 uuid: uuid()
             };

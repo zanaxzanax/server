@@ -1,4 +1,4 @@
-import {GameInterface, PlayerInterface, PlayerItem, PlayerOptions} from '../types/index';
+import {GameInterface, PlayerInterface, PlayerItem, PlayerOptions} from '../types';
 import {PlayerState} from './enums';
 
 export default class Player implements PlayerInterface {
@@ -6,12 +6,11 @@ export default class Player implements PlayerInterface {
     uuid: string;
     name: string;
 
-    private _state: number;
+    private _state: number = PlayerState.NOT_READY;
 
     constructor(public game: GameInterface, options: PlayerOptions) {
         this.uuid = options.uuid;
         this.name = options.name;
-        this._state = 0 // NOT_READY;
     }
 
     set state(value: number) {

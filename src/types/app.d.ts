@@ -1,11 +1,13 @@
 import {GameInterface} from './game';
 import {PlayerItem, UserItem} from './player';
-import {GameSingleItem} from './index';
+import {GameSingleItem} from '.';
+import Socket = SocketIO.Socket;
 
 export interface AppInterface {
     games: GameInterface[];
-    users: PlayerItem[];
-    io: any;
+    singles: GameSingleItem[];
+    users: UserItem[];
+    io: Socket;
     start: (io: any) => AppInterface;
     getGames: () => GameInterface[];
     getGame: (uuid: string) => GameInterface | GameSingleItem;

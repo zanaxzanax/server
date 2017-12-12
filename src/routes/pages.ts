@@ -75,7 +75,7 @@ export default {
         });
 
         exp.get('/create', middlewares.auth, (req, res, next) => {
-            return res.render('create', {
+            res.render('create', {
                 title: `Создание игры - ${config.clientName}`,
                 clientName: config.clientName,
                 type: GameTypes[GameTypes.SINGLE]
