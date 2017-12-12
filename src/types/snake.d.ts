@@ -1,5 +1,6 @@
 import {BodyPointInterface, PointItem} from './point';
 import {GameInterface} from './game';
+import {GoodPointInterface, PivotPointInterface} from './index';
 
 export interface SnakeOptions {
     playerUUID: string;
@@ -22,7 +23,7 @@ export interface SnakeInterface {
     points: BodyPointInterface[];
     isSelfHit: () => boolean;
     grow: () => void;
-    move: () => void;
+    move: (pivots: PivotPointInterface[], good: GoodPointInterface) => void
     length: () => number;
     toJSON: () => SnakeItem;
 }

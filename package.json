@@ -7,8 +7,8 @@
     "scripts": {
         "dev": "npm run clean && npm run copy-templates && npm run copy-config && tsc -w",
         "clean": "del-cli \"dist/*\" \"!dist/public\"",
-        "copy-templates": "cpx \"src/routes/pages/**/*.*\" \"./../dist/routes/pages\"",
-        "copy-config": "cpx \"src/config.json\" \"./../dist\""
+        "copy-templates": "cpx \"src/routes/pages/**/*.*\" \"dist/routes/pages\"",
+        "copy-config": "cpx \"src/config.json\" \"dist\""
     },
     "dependencies": {
         "body-parser": "1.18.2",

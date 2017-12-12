@@ -6,14 +6,6 @@ export enum GameTypes {
     SINGLE, MULTIPLAYER
 }
 
-export enum GameEventType {
-    PIVOT, TICK
-}
-
-export enum GameSide {
-    LEFT, RIGHT
-}
-
 export enum GameRule {
     WALL_THROW, SIMPLE
 }

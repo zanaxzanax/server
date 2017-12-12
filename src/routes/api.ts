@@ -3,7 +3,6 @@ import errors from './../errors';
 import middlewares from './middlewares';
 import * as formidable from 'express-formidable';
 import * as _ from 'lodash';
-import {GameInterface} from '../types';
 import config from './../config';
 import {ConfigItem} from '../types/config';
 
@@ -15,7 +14,7 @@ export default {
     init: (exp) => {
 
         exp.get('/api/game/:uuid', middlewares.auth, (req, res, next) => {
-            const game: GameInterface = app.getGame(req.params.uuid);
+            const game: any = app.getGame(req.params.uuid);
             if (game) {
                 return res.json(game);
             }

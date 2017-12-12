@@ -1,13 +1,17 @@
 import * as s from 'socket.io';
 import app from './classes/app';
 import * as jwt from 'jsonwebtoken';
-import {PlayerItem, PointItem, UserItem} from './types';
+import {UserItem} from './types';
 import Socket = SocketIO.Socket;
 
 export default {
     start: (server) => new Promise((resolve, reject) => {
 
         const io = s.listen(server);
+
+        io.on('error', (err) => {
+            console.log('error', err)
+        });
 
         io.on('connection', (socket: Socket) => {
 
@@ -19,10 +23,9 @@ export default {
                 const user: UserItem = decoded;
 
                 if (err) {
-
                     socket.disconnect(true);
-
                 } else {
+
                     console.log(decoded); // bar
 
                     user.socket = socket;
@@ -30,19 +33,15 @@ export default {
                     app.users.push(user);
 
                     socket.on('ready', (uuid: string) => {
-                        console.log('READY', uuid)
                         app.readyGame(uuid, user);
                     });
 
                     socket.on('pivot', (data: any) => {
-                        console.log('PIVOT', data)
                         app.pivotGame(data, user);
                     });
 
                     socket.on('join', (uuid: string) => {
-                        console.log('join', uuid)
                         if (app.joinGame(uuid, user)) {
-                            console.log('JOIN TO ROOM')
                             socket.join(uuid);
                         }
                     });

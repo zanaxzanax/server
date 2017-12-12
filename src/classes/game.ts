@@ -15,7 +15,7 @@ import {
 } from '../types';
 import config from '../config';
 import Snake from './snake';
-import {GameRule, GameState, PivotPointType, PlayerState} from './enums';
+import {GameRule, GameState, GameTypes, PivotPointType, PlayerState} from './enums';
 import GoodPoint from './points/good-point';
 import {PivotPoint} from './points';
 import * as moment from 'moment';
@@ -27,7 +27,8 @@ export default class Game implements GameInterface {
 
     fieldResolutionX: number = config.fieldResolutionX;
     fieldResolutionY: number = config.fieldResolutionY;
-    uuid: string;
+    uuid: string = uuid();
+    type: number = GameTypes.MULTIPLAYER;
     name: string;
     speed: number;
     rule: number;
@@ -116,7 +117,11 @@ export default class Game implements GameInterface {
     pivot(data: PointItem, user: PlayerItem): void {
         if (this.getPlayerByUUID(user.uuid) && this.isInPlay()) {
             this.pivots[user.uuid] = this.pivots[user.uuid] || [];
-            this.pivots[user.uuid].push(new PivotPoint(this, data));
+            this.pivots[user.uuid].push(new PivotPoint(this, {
+                x: this.snakes[user.uuid].headPoint.x,
+                y: this.snakes[user.uuid].headPoint.y,
+                direction: data.direction
+            }));
         }
     }
 
@@ -128,14 +133,11 @@ export default class Game implements GameInterface {
         Object.keys(this.goods).forEach((playerUUID: string) => {
             const good: GoodPointInterface = this.goods[playerUUID];
             if (!good || good.isEaten()) {
-                this.goods[playerUUID] = this.getGood(playerUUID);
+                this.goods[playerUUID] = this._createGood();
             }
         });
     }
 
-    getGood(playerUUID: string): GoodPointInterface {
-        return new GoodPoint(this, {playerUUID, x: this.getRandomX(), y: this.getRandomY()});
-    }
 
     cleanPivots(): void {
         Object.keys(this.pivots).forEach((playerUUID: string) => {
@@ -150,28 +152,10 @@ export default class Game implements GameInterface {
         });
     }
 
-    getPlayerUUIDBySnake(snake: SnakeInterface): string {
-        return Object.keys(this.snakes).find((playerUUID: string) => this.snakes[playerUUID] === snake);
-    }
-
     moveSnakes(): void {
         Object.keys(this.snakes).forEach((playerUUID: string) => {
-            this.snakes[playerUUID].move();
+            this.snakes[playerUUID].move(this.pivots[playerUUID], this.goods[playerUUID]);
         });
-    }
-
-    randomInteger(min, max): number {
-        let rand = min + Math.random() * (max + 1 - min);
-        rand = Math.floor(rand);
-        return rand;
-    }
-
-    getRandomX(): number {
-        return this.randomInteger(0, this.maxX);
-    }
-
-    getRandomY(): number {
-        return this.randomInteger(0, this.maxY);
     }
 
     softStop(): void {
@@ -199,7 +183,7 @@ export default class Game implements GameInterface {
                 direction: PivotPointType.RIGHT
             }]);
             this.pivots[playerUUID] = [];
-            this.goods[slot.uuid] = this.getGood(playerUUID);
+            this.goods[slot.uuid] = this._createGood();
         });
 
         this.state = GameState.PLAY;
@@ -277,10 +261,28 @@ export default class Game implements GameInterface {
         }
     }
 
+    private _randomInteger(min, max): number {
+        let rand = min + Math.random() * (max + 1 - min);
+        rand = Math.floor(rand);
+        return rand;
+    }
+
+    private _getRandomX(): number {
+        return this._randomInteger(0, this.maxX);
+    }
+
+    private _getRandomY(): number {
+        return this._randomInteger(0, this.maxY);
+    }
+
     private _startMovement() {
         this._interval = setInterval(() => {
             this.tick();
         }, (config.relativeSpeed || 1000) / this.speed);
+    }
+
+    private _createGood(): GoodPointInterface {
+        return new GoodPoint(this, {x: this._getRandomX(), y: this._getRandomY()});
     }
 
     private _stopMovement() {

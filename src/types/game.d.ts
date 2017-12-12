@@ -1,5 +1,5 @@
 import {AppInterface} from './app';
-import {GoodPointInterface, PivotPointInterface, PointInterface, PointItem} from './point';
+import {GoodPointInterface, PivotPointInterface, PointItem} from './point';
 import {PlayerInterface, PlayerItem} from './player';
 import {SnakeItem} from './snake';
 import {SnakeInterface} from './index';
@@ -18,24 +18,19 @@ export interface GameItem {
     uuid: string;
 }
 
+export interface GameSingleItem {
+    name?: string;
+    speed: number;
+    rule: number;
+    uuid: string;
+    type: number;
+}
+
 export interface GameOptions {
     name: string;
     speed: string;
     rule: string;
     user: PlayerItem;
-}
-
-export interface GameEvent {
-    ts: number;
-    type: number;
-    data: any;
-    game?: string;
-    player?: string;
-}
-
-export interface GameStatistic {
-    snakePosition?: PointInterface;
-    pastTime?: number;
 }
 
 export interface GameInterface {
@@ -49,6 +44,7 @@ export interface GameInterface {
     maxX: number;
     maxY: number;
     state: number;
+    type: number;
     creator: PlayerInterface;
     playersLimit: number;
     slots: PlayerInterface[];
@@ -58,17 +54,16 @@ export interface GameInterface {
     isFull: () => boolean;
     isInPlay: () => boolean;
     isDone: () => boolean;
-    join: (user: PlayerItem) => boolean;
     allReady: () => boolean;
+    hasLosers: () => boolean;
+    join: (user: PlayerItem) => boolean;
     ready: (user: PlayerItem) => void;
     pivot: (data: PointItem, user: PlayerItem) => void;
-    getPlayerByUUID: (snake: string) => PlayerInterface;
+    getPlayerByUUID: (uuid: string) => PlayerInterface;
     softStop: () => void;
     stop: () => void;
     start: () => void;
     tick: () => void;
-    toJSON: () => GameItem;
     sendUpdateMessage: () => void;
-    getPlayerUUIDBySnake: (snake: SnakeInterface) => string;
-    hasLosers: () => boolean;
+    toJSON: () => GameItem;
 }

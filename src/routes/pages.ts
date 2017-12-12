@@ -5,6 +5,7 @@ import errors from './../errors';
 import * as uuid from 'uuid';
 import config from './../config';
 import * as _ from 'lodash';
+import {GameTypes} from '../classes/enums';
 
 export default {
     init: (exp) => {
@@ -20,27 +21,30 @@ export default {
             res.render('switch', {
                 title: `Тип игры - ${config.clientName}`,
                 clientName: config.clientName,
-                name: 'switch'
+                name: 'switch',
+                typeSingle: GameTypes[GameTypes.SINGLE],
+                typeMultiplayer: GameTypes[GameTypes.MULTIPLAYER],
             });
+        });
+
+        exp.post('/switch', middlewares.auth, (req, res, next) => {
+            switch (req.body.type) {
+                case GameTypes[GameTypes.MULTIPLAYER]:
+                    return res.redirect('/list');
+                case GameTypes[GameTypes.SINGLE]:
+                    return res.redirect('/create');
+                default:
+                    return next(new errors.RouteError());
+            }
         });
 
         exp.get('/list', middlewares.auth, (req, res) => {
             res.render('list', {
                 title: `Список игр - ${config.clientName}`,
                 clientName: config.clientName,
-                name: 'list'
+                name: 'list',
+                type: GameTypes[GameTypes.MULTIPLAYER]
             });
-        });
-
-        exp.post('/switch', middlewares.auth, (req, res, next) => {
-            switch (req.body.type) {
-                case 'multiplayer':
-                    return res.redirect('/list');
-                case 'single':
-                    return res.redirect('/game/create');
-                default:
-                    return next(new errors.RouteError());
-            }
         });
 
         exp.get('/error/:status', (req, res) => {
@@ -70,32 +74,31 @@ export default {
             }
         });
 
-        exp.get('/game/create', middlewares.auth, (req, res, next) => {
-            return res.render('game', {
+        exp.get('/create', middlewares.auth, (req, res, next) => {
+            return res.render('create', {
                 title: `Создание игры - ${config.clientName}`,
                 clientName: config.clientName,
-                name: 'single',
-                creation: true
-            });
-        });
-
-        exp.post('/game', middlewares.auth, (req, res, next) => {
-            return res.render('game', {
-                title: `Игра - ${config.clientName}`,
-                clientName: config.clientName,
-                name: 'single',
-                creation: false,
-                query: req.body
+                type: GameTypes[GameTypes.SINGLE]
             });
         });
 
         exp.get('/game/:uuid', middlewares.auth, (req, res, next) => {
-            if (app.getGame(req.params.uuid)) {
-                return res.render('multiplayer', {
-                    title: `Игра - ${config.clientName}`,
-                    clientName: config.clientName,
-                    name: 'multiplayer',
-                });
+            const game: any = app.getGame(req.params.uuid);
+            if (game) {
+                switch (game.type) {
+                    case GameTypes.SINGLE:
+                        return res.render('single', {
+                            title: `Игра - ${config.clientName}`,
+                            clientName: config.clientName,
+                            name: 'single',
+                        });
+                    default:
+                        return res.render('multiplayer', {
+                            title: `Игра - ${config.clientName}`,
+                            clientName: config.clientName,
+                            name: 'multiplayer',
+                        });
+                }
             } else {
                 return next(new errors.RouteError());
             }

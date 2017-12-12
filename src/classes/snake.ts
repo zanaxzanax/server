@@ -13,15 +13,6 @@ import {GameRule, PivotPointType} from './enums';
 
 export default class Snake implements SnakeInterface {
 
-    /* static defaults: SnakeOptions = {
-         playerUUID: '',
-         length: 1,
-         startX: 0,
-         startY: 0,
-         direction: PivotPointType.RIGHT,
-     };
- */
-//    options: SnakeOptions;
     points: BodyPointInterface[] = [];
 
     constructor(public game: GameInterface, points: PointItem[]) {
@@ -70,10 +61,8 @@ export default class Snake implements SnakeInterface {
         this.points.push(new BodyPoint(this.game, {x, y, direction: this.lastPoint.direction}));
     }
 
-    move(): void {
+    move(pivots: PivotPointInterface[], good: GoodPointInterface): void {
 
-        const pivots: PivotPointInterface[] = this.game.pivots[this.game.getPlayerUUIDBySnake(this)];
-        const good: GoodPointInterface = this.game.goods[this.game.getPlayerUUIDBySnake(this)];
         let direction;
 
         this.points.forEach((point: BodyPointInterface) => {

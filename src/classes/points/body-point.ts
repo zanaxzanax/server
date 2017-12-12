@@ -21,5 +21,4 @@ export default class BodyPoint extends Point implements BodyPointInterface {
             direction: this.direction
         }
     }
-
 }

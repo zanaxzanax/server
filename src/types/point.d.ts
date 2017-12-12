@@ -13,7 +13,6 @@ export interface PointItem {
 }
 
 export interface GoodOptions {
-    playerUUID: string;
     x: number;
     y: number;
 }
