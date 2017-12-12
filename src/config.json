@@ -7,5 +7,5 @@
     "canvasWidth": 500,
     "canvasTopPadding": 10,
     "gameDuration": 60,
-    "relativeSpeed": 500
+    "relativeSpeed": 1000
 }
